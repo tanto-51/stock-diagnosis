@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前世の銘柄診断 - 荒野の銘柄鑑定所</title>
+    <!-- Tailwind CSS for utility styling & layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for retro pixel aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <!-- OGP Settings -->
+    <meta property="og:title" content="前世の銘柄診断 - あなたの魂、かつてどの株だった？" />
+    <meta property="og:description" content="5つの質問に答えて、あなたの投資家としての魂（前世の銘柄）を暴け！荒野の株診断サイト" />
+    <meta property="og:type" content="website" />
+
+    <style>
+        /* Global Pixel Art Styling */
+        body {
+            font-family: 'DotGothic16', monospace;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            overflow-x: hidden;
+            background-color: #1a0b05;
+        }
+
+        .font-pixel-heading {
+            font-family: 'Press Start 2P', 'DotGothic16', cursive;
+        }
+
+        /* Pixel Borders & Cards */
+        .pixel-box {
+            background-color: #2b1810;
+            border: 4px solid #b86f34;
+            box-shadow: 
+                0 0 0 4px #4a2511,
+                0 8px 0 4px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .pixel-box-inner {
+            border: 2px solid #e09953;
+            background: linear-gradient(180deg, #3a2015 0%, #21110a 100%);
+        }
+
+        .pixel-btn {
+            background-color: #c84c1c;
+            color: #fce8a6;
+            border: 3px solid #631d08;
+            box-shadow: 
+                inset -3px -3px 0px 0px #8b2b09,
+                inset 3px 3px 0px 0px #e67d45,
+                0 4px 0 0 #000;
+            text-shadow: 2px 2px 0px #000;
+            transition: all 0.1s ease;
+        }
+
+        .pixel-btn:hover {
+            background-color: #da5824;
+            transform: translateY(-2px);
+            box-shadow: 
+                inset -3px -3px 0px 0px #a1320a,
+                inset 3px 3px 0px 0px #f0955e,
+                0 6px 0 0 #000;
+        }
+
+        .pixel-btn:active {
+            transform: translateY(3px);
+            box-shadow: 
+                inset -2px -2px 0px 0px #da5824,
+                inset 2px 2px 0px 0px #631d08,
+                0 1px 0 0 #000;
+        }
+
+        .pixel-btn-secondary {
+            background-color: #5a3c28;
+            color: #e0c8b0;
+            border: 3px solid #28190e;
+            box-shadow: 
+                inset -3px -3px 0px 0px #382417,
+                inset 3px 3px 0px 0px #80573c,
+                0 4px 0 0 #000;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .pixel-btn-secondary:hover {
+            background-color: #6d4a32;
+        }
+
+        .pixel-btn-x {
+            background-color: #111;
+            color: #fff;
+            border: 3px solid #333;
+            box-shadow: 
+                inset -3px -3px 0px 0px #222,
+                inset 3px 3px 0px 0px #555,
+                0 4px 0 0 #000;
+        }
+
+        .pixel-btn-x:hover {
+            background-color: #222;
+        }
+
+        /* Canvas Overlay for subtle ambient scanlines */
+        .scanline {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+        }
+
+        /* Western Saloon Banner */
+        .saloon-banner {
+            background: #8b2611;
+            border-bottom: 4px solid #421106;
+            box-shadow: 0 4px 0 #000;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-amber-100 flex flex-col justify-between relative selection:bg-amber-600 selection:text-white">
+
+    <!-- Pixel Art Background Canvas Layer -->
+    <canvas id="pixel-bg-canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+
+    <!-- Scanline overlay for CRT retro vibe -->
+    <div class="fixed inset-0 w-full h-full z-10 scanline pointer-events-none opacity-40"></div>
+
+    <!-- Main Content Container (Above Canvas Layer) -->
+    <div class="relative z-20 flex flex-col min-h-screen justify-between">
+        
+        <!-- Header / Wanted Style Saloon Banner -->
+        <header class="w-full py-4 saloon-banner text-center relative z-20">
+            <div class="inline-block border-2 border-amber-300/40 px-6 py-2 bg-amber-950/80 rounded-sm">
+                <h1 class="text-xl md:text-3xl font-extrabold tracking-widest text-amber-400 drop-shadow-[0_2px_0_#000] flex items-center justify-center gap-2">
+                    <span>🌵</span> 前世の銘柄診断 <span>🌵</span>
+                </h1>
+                <p class="text-xs md:text-sm text-amber-200/90 mt-1 font-bold">〜 荒野の銘柄鑑定所 〜</p>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="container mx-auto px-4 py-6 max-w-xl flex-grow flex items-center justify-center">
+
+            <!-- Start Screen -->
+            <div id="start-screen" class="pixel-box p-6 md:p-8 rounded-none w-full text-center">
+                <div class="pixel-box-inner p-6">
+                    <div class="text-6xl mb-4 animate-bounce">🤠</div>
+                    <h2 class="text-xl md:text-2xl font-bold mb-3 text-amber-400 drop-shadow-[0_2px_0_#000]">
+                        汝の魂、西部劇の荒野で何にならん？
+                    </h2>
+                    <p class="text-sm md:text-base text-amber-100 mb-6 leading-relaxed">
+                        暴落と強欲が渦巻く荒野の酒場へようこそ。<br>
+                        日常のちょっとした選択から、お前の前世がどんな株式・草コイン・市場の歪みだったのかを鑑定してやるぜ！
+                    </p>
+                    <button onclick="startQuiz()" class="pixel-btn w-full py-4 text-lg md:text-xl font-bold tracking-wider">
+                        診断を始める 🔫
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quiz-screen" class="hidden pixel-box p-6 md:p-8 rounded-none w-full">
+                <div class="pixel-box-inner p-6">
+                    <div class="flex justify-between items-center mb-6 text-xs text-amber-300 font-bold tracking-wider border-b border-amber-800/80 pb-3">
+                        <span id="question-progress" class="bg-amber-950 px-3 py-1 border border-amber-600 text-amber-400">QUESTION 1 / 5</span>
+                        <span class="text-amber-500 font-mono">WESTERN STOCK</span>
+                    </div>
+                    <h3 id="question-text" class="text-base md:text-lg font-bold mb-6 text-amber-100 leading-snug min-h-[3rem]">
+                        質問テキストがここに入ります
+                    </h3>
+                    <div id="options-container" class="space-y-3">
+                        <!-- 選択肢ボタンがJSで挿入されます -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Screen -->
+            <div id="result-screen" class="hidden pixel-box p-6 md:p-8 rounded-none w-full text-center">
+                <div class="pixel-box-inner p-6">
+                    <!-- Wanted Poster Container -->
+                    <div class="bg-amber-200 text-amber-950 p-4 border-4 border-amber-900 shadow-inner mb-6 relative overflow-hidden">
+                        <div class="text-xs uppercase tracking-widest font-extrabold border-b-2 border-amber-900 pb-1 mb-2">
+                            WANTED - 前世の鑑定結果
+                        </div>
+                        <div id="result-badge" class="inline-block bg-amber-900 text-amber-100 px-3 py-0.5 text-xs font-bold mb-3">
+                            TYPE IDENTIFIED
+                        </div>
+                        <h2 id="result-title" class="text-2xl md:text-3xl font-black mb-3 text-red-900 tracking-tight leading-tight">
+                            銘柄名
+                        </h2>
+                        <p id="result-description" class="text-xs md:text-sm text-amber-950 bg-amber-100/90 p-3 border border-amber-800 text-left leading-relaxed font-bold">
+                            解説文がここに入ります。
+                        </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="space-y-3">
+                        <button onclick="shareToX()" class="pixel-btn-x pixel-btn w-full py-3.5 font-bold flex items-center justify-center gap-2 text-sm md:text-base">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            結果をXで発砲（シェア）する
+                        </button>
+                        <button onclick="restartQuiz()" class="pixel-btn-secondary pixel-btn w-full py-3 font-bold text-sm">
+                            もう一度荒野に挑む 🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full py-3 text-center text-xs text-amber-400/70 bg-amber-950/80 border-t border-amber-900 relative z-20">
+            &copy; 2026 前世の銘柄診断 - Wild West Stock Diagnosis
+        </footer>
+    </div>
+
+    <!-- 2D Pixel Art Background Canvas & Quiz Game Script -->
+    <script>
+        /* ==========================================================================
+           1. CANVAS PIXEL ART WILD WEST DESERT ENGINE (With Animated Clouds)
+           ========================================================================== */
+        const canvas = document.getElementById('pixel-bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Virtual Pixel Grid Resolution for authentic 16-bit low-res rendering
+        const GAME_WIDTH = 320;
+        const GAME_HEIGHT = 240;
+
+        // Offscreen canvas for low-res pixel drawing
+        const bufferCanvas = document.createElement('canvas');
+        bufferCanvas.width = GAME_WIDTH;
+        bufferCanvas.height = GAME_HEIGHT;
+        const bufferCtx = bufferCanvas.getContext('2d');
+
+        // Cloud Entities
+        const clouds = [
+            { x: 10, y: 18, width: 42, height: 12, speed: 0.15, layer: 0 },
+            { x: 140, y: 30, width: 64, height: 16, speed: 0.25, layer: 1 },
+            { x: 260, y: 12, width: 36, height: 10, speed: 0.12, layer: 0 },
+            { x: 80, y: 45, width: 50, height: 14, speed: 0.35, layer: 2 },
+            { x: 210, y: 52, width: 48, height: 12, speed: 0.28, layer: 1 }
+        ];
+
+        // Resize handler maintaining pixel crispness
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            ctx.imageSmoothingEnabled = false;
+            bufferCtx.imageSmoothingEnabled = false;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Helper: Draw a pixel-perfect rectangle grid on buffer
+        function drawPixelRect(x, y, w, h, color) {
+            bufferCtx.fillStyle = color;
+            bufferCtx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
+        }
+
+        // Draw Western Pixel Sun
+        function drawPixelSun() {
+            const sunX = 230;
+            const sunY = 40;
+            const r = 18;
+            
+            // Outer Glow
+            drawPixelRect(sunX - r - 4, sunY - r - 4, (r + 4)*2, (r + 4)*2, 'rgba(245, 158, 11, 0.2)');
+            drawPixelRect(sunX - r - 2, sunY - r - 2, (r + 2)*2, (r + 2)*2, 'rgba(251, 191, 36, 0.4)');
+            // Sun Body
+            drawPixelRect(sunX - r, sunY - r, r*2, r*2, '#fef08a');
+            drawPixelRect(sunX - r + 2, sunY - r + 2, r*2 - 4, r*2 - 4, '#ffffff');
+        }
+
+        // Draw Pixel Clouds
+        function drawPixelCloud(cloud) {
+            const colorMain = cloud.layer === 0 ? '#fde68a' : (cloud.layer === 1 ? '#fef3c7' : '#ffffff');
+            const colorShadow = cloud.layer === 0 ? '#d97706' : '#f59e0b';
+
+            const x = Math.floor(cloud.x);
+            const y = Math.floor(cloud.y);
+            const w = cloud.width;
+            const h = cloud.height;
+
+            // Base Cloud Shape (Stepped pixel blocks)
+            drawPixelRect(x + 4, y + 4, w - 8, h - 4, colorShadow);
+            drawPixelRect(x + 2, y + 2, w - 4, h - 4, colorMain);
+            drawPixelRect(x + 6, y - 2, w - 16, h, colorMain);
+            drawPixelRect(x + 12, y - 5, w - 28, h, colorMain);
+        }
+
+        // Draw Parallax Mountain Range (Distant & Near Canyons)
+        function drawMountains() {
+            // Distant Mountains (Purple/Warm Rust tone)
+            const distColor = '#6b21a8';
+            const distHighlight = '#8b5cf6';
+            const distantPeaks = [
+                {x: 0, h: 45}, {x: 40, h: 70}, {x: 90, h: 50}, 
+                {x: 140, h: 80}, {x: 200, h: 60}, {x: 260, h: 75}, {x: 320, h: 50}
+            ];
+
+            const baseY = 160;
+
+            // Draw Distant Peaks
+            for (let i = 0; i < distantPeaks.length - 1; i++) {
+                const p1 = distantPeaks[i];
+                const p2 = distantPeaks[i+1];
+                const peakX = (p1.x + p2.x) / 2;
+                const peakY = baseY - Math.max(p1.h, p2.h);
+
+                // Mountain silhouette
+                drawPixelRect(p1.x, baseY - p1.h, p2.x - p1.x, p1.h, '#4c1d95');
+                drawPixelRect(peakX - 10, peakY, 20, baseY - peakY, distColor);
+                // Highlight edge
+                drawPixelRect(peakX - 10, peakY, 4, baseY - peakY, distHighlight);
+            }
+
+            // Near Red Rock Canyons (Flat Top Mesas & Sharp Rocks)
+            // Mesa 1
+            drawPixelRect(15, 115, 75, 45, '#9a3412');
+            drawPixelRect(15, 115, 75, 5, '#c2410c'); // Top trim
+            drawPixelRect(15, 120, 15, 40, '#7c2d12'); // Shadow side
+
+            // Mesa 2
+            drawPixelRect(165, 105, 90, 55, '#9a3412');
+            drawPixelRect(165, 105, 90, 6, '#ea580c'); // Top trim
+            drawPixelRect(225, 111, 30, 49, '#7c2d12'); // Shadow side
+
+            // Midground Canyon Ridge
+            drawPixelRect(0, 145, 320, 20, '#78350f');
+            drawPixelRect(0, 145, 320, 3, '#b45309');
+        }
+
+        // Draw Desert Ground & Saguaro Cactuses
+        function drawDesertGround() {
+            // Sandy Ground Base Gradient
+            drawPixelRect(0, 165, 320, 20, '#d97706');
+            drawPixelRect(0, 185, 320, 25, '#b45309');
+            drawPixelRect(0, 210, 320, 30, '#78350f');
+
+            // Ground Details (Rocks, Tuft grass)
+            // Rock 1
+            drawPixelRect(40, 190, 8, 5, '#451a03');
+            drawPixelRect(40, 190, 8, 2, '#92400e');
+            // Rock 2
+            drawPixelRect(270, 205, 12, 6, '#451a03');
+            drawPixelRect(270, 205, 12, 2, '#92400e');
+
+            // Pixel Saguaro Cactus 1 (Left Foreground)
+            drawCactus(25, 155, 1.2);
+
+            // Pixel Saguaro Cactus 2 (Right Midground)
+            drawCactus(290, 165, 0.9);
+
+            // Small Cactus (Center Distance)
+            drawCactus(135, 160, 0.6);
+        }
+
+        // Helper to draw pixelized Saguaro Cactus
+        function drawCactus(x, y, scale) {
+            const greenMain = '#15803d';
+            const greenDark = '#166534';
+            const greenLight = '#22c55e';
+
+            const w = Math.floor(6 * scale);
+            const h = Math.floor(32 * scale);
+            const armW = Math.floor(4 * scale);
+            const armH = Math.floor(12 * scale);
+
+            // Main Trunk
+            drawPixelRect(x, y, w, h, greenMain);
+            drawPixelRect(x, y, Math.max(1, Math.floor(w/3)), h, greenLight); // Highlight
+            drawPixelRect(x + w - Math.max(1, Math.floor(w/3)), y, Math.max(1, Math.floor(w/3)), h, greenDark); // Shadow
+
+            // Left Arm
+            drawPixelRect(x - armH + Math.floor(2*scale), y + Math.floor(8*scale), armH, armW, greenMain);
+            drawPixelRect(x - armH + Math.floor(2*scale), y + Math.floor(2*scale), armW, armH, greenMain);
+
+            // Right Arm
+            drawPixelRect(x + w, y + Math.floor(14*scale), armH - Math.floor(2*scale), armW, greenMain);
+            drawPixelRect(x + w + armH - Math.floor(6*scale), y + Math.floor(6*scale), armW, armH, greenMain);
+        }
+
+        // Main Animation Loop
+        function animate() {
+            // 1. Clear & Draw Sky Gradient
+            const skyGradient = bufferCtx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            skyGradient.addColorStop(0, '#450a0a');   // Deep Wild West Red/Burgundy top
+            skyGradient.addColorStop(0.4, '#7c2d12'); // Terracotta mid
+            skyGradient.addColorStop(0.7, '#d97706'); // Warm Sunset Amber
+            skyGradient.addColorStop(1.0, '#f59e0b'); // Horizon yellow
+            bufferCtx.fillStyle = skyGradient;
+            bufferCtx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            // 2. Draw Sun
+            drawPixelSun();
+
+            // 3. Move & Draw Clouds (Continuous drift)
+            clouds.forEach(cloud => {
+                cloud.x += cloud.speed;
+                if (cloud.x > GAME_WIDTH + 50) {
+                    cloud.x = -70; // Wrap around to screen left
+                }
+                drawPixelCloud(cloud);
+            });
+
+            // 4. Draw Mountains & Canyons
+            drawMountains();
+
+            // 5. Draw Ground & Cactuses
+            drawDesertGround();
+
+            // 6. Scale and Render Buffer to Real Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(
+                bufferCanvas,
+                0, 0, GAME_WIDTH, GAME_HEIGHT,
+                0, 0, canvas.width, canvas.height
+            );
+
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation loop when window loads
+        window.onload = function() {
+            animate();
+        };
+
+
+        /* ==========================================================================
+           2. STOCK DIAGNOSIS QUIZ GAME LOGIC & DATA
+           ========================================================================== */
+
+        // 30 Stock Results Data
+        const resultsData = [
+            { id: 1, name: "平成初期のNTT", desc: "かつては国民全員の憧れだったが、今はすっかり落ち着き払って実家にいるような安心感を放つ大器。派手さはないが、絶対的な安定感を持つ。" },
+            { id: 2, name: "草コイン", desc: "一瞬だけ一攫千金の夢を見せて、打ち上げ花火のように儚く消えていった伝説の存在。あなたの人生はハイリスク・ハイリターンのロマンに満ちている。" },
+            { id: 3, name: "高配当・連続増配株", desc: "華やかさはないけれど、愚直に尽くし続けて絶対に裏切らない超一途なタイプ。時間をかけてじっくり絆を深めるのが得意。" },
+            { id: 4, name: "IPO初日の超大型グロース株", desc: "期待値だけで全人類から持ち上げられるが、翌日にはなぜか急落して気まずくなるタイプ。注目を浴びやすい愛されスター気質。" },
+            { id: 5, name: "昭和の地方銀行株", desc: "めちゃくちゃ堅実で倒れない安心感はあるが、普段の会話の値動きが少なさすぎて凪の状態。安定第一の守りの人。" },
+            { id: 6, name: "信用買い残が山積みになった仕手株", desc: "みんなの「ワンチャン頼む！」という重すぎる欲望と期待を背負わされて身動きが取れなくなっている。プレッシャーに強いが危うい。" },
+            { id: 7, name: "落ちてくるナイフ銘柄", desc: "「今が底だ！」と期待して近づいてきた人を、なぜか全員返り討ちにして傷つけてしまう魔性の魅力の持ち主。" },
+            { id: 8, name: "テーマ株（AI・宇宙・量子力学）", desc: "口を開けば夢のようなデカいことばかり言うが、実体が伴うまでに10年かかるロマンチスト。時代の最先端を夢想する。" },
+            { id: 9, name: "年初来安値を更新し続ける無風株", desc: "世の中がどれだけ浮かれていても、ひとりだけ冷めた目をして下にスルスル滑り落ちていくマイペースな哲学者。" },
+            { id: 10, name: "決算発表直前の好業績株", desc: "「絶対イケる！」と周囲に期待させておいて、当日にまさかの『材料出尽くし』で期待を裏切る憎めない愛嬌の持ち主。" },
+            { id: 11, name: "TOB（株式公開買付）された株", desc: "ある日突然、強烈な権力者に札束で叩き起こされて人生のステージが無理やり引き上げられたシンデレラ（あるいは強制退場）タイプ。" },
+            { id: 12, name: "超絶決算直後の寄り付きストップ高", desc: "人生のピークが「朝の9時00分」に訪れ、そこからはひたすら陰線を引いて落ちていく、儚すぎる瞬発力の神。" },
+            { id: 13, name: "値幅制限解除された暴落株", desc: "一度ストッパーが外れると、どこまでも際限なく崩壊していく圧倒的な感情の揺れ動きを持つドラマチックな人間。" },
+            { id: 14, name: "優待の米だけが豪華な赤字株", desc: "本業はガタガタなのに、なぜか「お米」や「QUOカード」という小手先の優しさだけで周囲から愛されている不思議な存在感。" },
+            { id: 15, name: "永遠のナンピン買い銘柄", desc: "「これ以上は下がらない」と何度も信じてもらうのに、底なし沼のように裏切り続ける底抜けの底抜けポジティブ（あるいはドM）。" },
+            { id: 16, name: "急騰後の「高値掴み」インサイダー疑惑株", desc: "一番盛り上がっている最高のタイミングで登場するが、入った瞬間に宴が終わる不運のクラッシャー。" },
+            { id: 17, name: "出来高ゼロの超マイナー株", desc: "誰も見ていないし誰も取引してくれない、市場の片隅で静かに時を止めている隠者。我が道をいく孤高の存在。" },
+            { id: 18, name: "ショートスクイズ（踏み上げ）を起こした空売り集中株", desc: "アンチが多ければ多いほど、逆にそれを糧にして狂ったように爆発的な力を発揮する逆境の鬼。" },
+            { id: 19, name: "親子上場の親会社", desc: "周り（子会社など）ばかりがチヤホヤされて、自分は評価が据え置かれて正当に扱われない苦労人の良識派。" },
+            { id: 20, name: "権利落ち日直後の高配当株", desc: "大事なイベントが終わった瞬間、憑き物が落ちたかのように一気にテンションが下がる現実主義者。" },
+            { id: 21, name: "レバレッジ3倍ETF", desc: "テンションの上がり下がりが人の3倍激しく、一緒にいると疲れるけど目が離せないジェットコースター人間。" },
+            { id: 22, name: "米国大型ITディフェンシブ株", desc: "何があっても「まあ最終的にはこいつが勝つだろ」と全員から都合よく信頼されている無敵の覇者。" },
+            { id: 23, name: "上場廃止寸前の整理銘柄", desc: "「もう後がない」という限界状況になってから、なぜか謎のパワーで一瞬だけ爆発的な輝きを放つお祭り男。" },
+            { id: 24, name: "決算ササプライズ下方修正株", desc: "自信満々の顔をして登場した直後、全員を「えっ…？」とズッコケさせる天然の破壊力を持つムードメーカー。" },
+            { id: 25, name: "自社株買いを発表した良心株", desc: "困っている人がいると、自腹を切ってでも自分の価値を底上げしようとする聖人君子のようなお人好し。" },
+            { id: 26, name: "ミーム株（SNSでバズった謎銘柄）", desc: "ノリと勢いだけで集まった人たちに担ぎ上げられ、大祭り状態になったあと綺麗に忘れ去られる時代の寵児。" },
+            { id: 27, name: "ハイパーインフレ国債", desc: "最初は価値があると思われていたのに、時間が経つごとに発言の重みがペラペラになっていくおしゃべりおじさん。" },
+            { id: 28, name: "ストップ安張り付き銘柄", desc: "完全に心を閉ざしてしまい、誰が何を言っても二度と口を開いてくれない頑固一徹な職人タイプ。" },
+            { id: 29, name: "複利で増え続ける全自動オルカン", desc: "目立たないけれど、世界全体の流れに乗っかってちゃっかり得をしている最強の世渡り上手。" },
+            { id: 30, name: "上場来高値を30年ぶりに更新した老舗株", desc: "超長いスランプと下積み時代を経て、おじさんになってから奇跡の大ブレイクを果たす超大器晩成型。" }
+        ];
+
+        // 5 Quiz Questions
+        const questions = [
+            {
+                text: "Q1. ランチで行列のできる超人気ラーメン店に来ました。あなたの行動は？",
+                options: [
+                    { text: "行列の長さを見て即並ぶ。みんなが並んでるなら間違いない。", risk: 2, grip: 1, trend: 3, minor: 0 },
+                    { text: "美味しいと評判なら、1時間待ちでも並んで食べる。", risk: 1, grip: 3, trend: 2, minor: 0 },
+                    { text: "行列の隙間を狙って、並ばずに入れるオープン直後や時間をずらす。", risk: 0, grip: 2, trend: 0, minor: 3 },
+                    { text: "行列を見るだけで面倒になり、近くの空いている牛丼屋に入る。", risk: -1, grip: 0, trend: -1, minor: 3 }
+                ]
+            },
+            {
+                text: "Q2. 買ったばかりの新車に、知らないうちに小さな擦り傷が！あなたの反応は？",
+                options: [
+                    { text: "「動けば一緒、そのうち味が出るさ」と全く気にせず放置する。", risk: 1, grip: 3, trend: 0, minor: 1 },
+                    { text: "めちゃくちゃショックを受けるが、数日で忘れて普段通り乗る。", risk: 2, grip: 1, trend: 1, minor: 0 },
+                    { text: "すぐに修理工場に持っていって、完璧に元通りに直してもらう。", risk: -1, grip: 1, trend: 0, minor: 3 },
+                    { text: "傷がついたショックで、その車に乗るのが嫌になってすぐ売りたくなる。", risk: 3, grip: -3, trend: 1, minor: 0 }
+                ]
+            },
+            {
+                text: "Q3. 信頼している（かもしれない）友人から「絶対に儲かるから」と怪しい投資話をされたら？",
+                options: [
+                    { text: "「乗るしかない！」と前のめりで飛びつく。", risk: 3, grip: 0, trend: 3, minor: -1 },
+                    { text: "半信半疑だけど、面白そうだから少額だけ乗ってみる。", risk: 2, grip: 1, trend: 2, minor: 0 },
+                    { text: "丁重に断り、手堅くインデックス投資や貯金を続ける。", risk: -2, grip: 2, trend: -1, minor: 3 },
+                    { text: "話のネタとして面白がるだけで、絶対にお金は出さない。", risk: 0, grip: 2, trend: 0, minor: 2 }
+                ]
+            },
+            {
+                text: "Q4. 長年大切にしている思い出の品が、ネットで急に高値で取引されているのを見つけました。どうする？",
+                options: [
+                    { text: "「今が売り時だ！」と即座に出品して利益を確定する。", risk: 2, grip: -2, trend: 2, minor: 0 },
+                    { text: "ちょっと心が揺らぐが、愛着があるので手放さずに持ち続ける。", risk: 0, grip: 3, trend: 0, minor: 2 },
+                    { text: "むしろ「もっと価値が上がるはずだ」と買い足す。", risk: 3, grip: 2, trend: 3, minor: -1 },
+                    { text: "人がどう評価しようと自分には関係ないのでどうでもいい。", risk: -1, grip: 2, trend: -2, minor: 3 }
+                ]
+            },
+            {
+                text: "Q5. 旅行先で大雨が降り、予定していた観光地がすべて中止になりました。あなたの行動は？",
+                options: [
+                    { text: "「ホテルで爆睡するかネットフリックスを見る」と割り切る。", risk: 0, grip: 2, trend: -1, minor: 2 },
+                    { text: "「せっかく来たんだから！」と、雨でも楽しめそうな別の激アツスポットを秒で探す。", risk: 2, grip: 1, trend: 2, minor: 0 },
+                    { text: "「まあ、そういうこともあるよね」と、ホテルのロビーで優雅にお茶を飲む。", risk: -1, grip: 2, trend: 0, minor: 2 },
+                    { text: "「なんでこうなるんだ…」と、しばらく落ち込んでテンションが下がり続ける。", risk: -2, grip: -1, trend: -1, minor: 1 }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userScores = { risk: 0, grip: 0, trend: 0, minor: 0 };
+
+        const startScreen = document.getElementById("start-screen");
+        const quizScreen = document.getElementById("quiz-screen");
+        const resultScreen = document.getElementById("result-screen");
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("options-container");
+        const questionProgress = document.getElementById("question-progress");
+
+        function startQuiz() {
+            currentQuestion = 0;
+            userScores = { risk: 0, grip: 0, trend: 0, minor: 0 };
+            startScreen.classList.add("hidden");
+            resultScreen.classList.add("hidden");
+            quizScreen.classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            questionProgress.textContent = `QUESTION ${currentQuestion + 1} / ${questions.length}`;
+            questionText.textContent = q.text;
+            optionsContainer.innerHTML = "";
+
+            q.options.forEach((opt) => {
+                const btn = document.createElement("button");
+                btn.className = "pixel-btn w-full text-left p-3.5 text-xs md:text-sm font-bold flex items-center gap-2";
+                btn.innerHTML = `<span class="text-amber-300 font-mono">▶</span> ${opt.text}`;
+                btn.onclick = () => selectOption(opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(opt) {
+            userScores.risk += opt.risk;
+            userScores.grip += opt.grip;
+            userScores.trend += opt.trend;
+            userScores.minor += opt.minor;
+
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizScreen.classList.add("hidden");
+            resultScreen.classList.remove("hidden");
+
+            // Hash calculation to map scores into 1 of the 30 stock items
+            const totalScore = Math.abs(userScores.risk * 7 + userScores.grip * 13 + userScores.trend * 11 + userScores.minor * 5);
+            const resultIndex = totalScore % resultsData.length;
+            const matchedResult = resultsData[resultIndex];
+
+            document.getElementById("result-title").textContent = `【 ${matchedResult.name} 】`;
+            document.getElementById("result-description").textContent = matchedResult.desc;
+            window.currentResultName = matchedResult.name;
+        }
+
+        function shareToX() {
+            const text = encodeURIComponent(`荒野の鑑定所で判明！私の前世の銘柄は【${window.currentResultName}】でした！\n\nあなたの前世の銘柄も診断してみる？🌵👇\n`);
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}&hashtags=前世の銘柄診断,株あるある,荒野の株診断`, '_blank');
+        }
+
+        function restartQuiz() {
+            startScreen.classList.remove("hidden");
+            resultScreen.classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
